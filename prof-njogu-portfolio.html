@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>PROF. NJOGU — Academic Help</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=Syne+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<!-- EmailJS SDK -->
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+:root{
+  --bg:#07080f;
+  --surface:#0e1020;
+  --panel:#13152a;
+  --lime:#c8f135;
+  --lime-dim:#9ab82a;
+  --white:#f0f0f0;
+  --grey:#8a8fa8;
+  --border:rgba(200,241,53,0.15);
+  --font-display:'Bebas Neue',sans-serif;
+  --font-body:'Syne',sans-serif;
+  --font-mono:'Syne Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;cursor:none}
+body{background:var(--bg);color:var(--white);font-family:var(--font-body);overflow-x:hidden}
+
+/* CURSOR */
+#cursor{position:fixed;width:12px;height:12px;background:var(--lime);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s}
+#cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(200,241,53,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s}
+
+/* NOISE */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:998;mix-blend-mode:overlay;opacity:.6}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:1.4rem 3rem;border-bottom:1px solid var(--border);background:rgba(7,8,15,0.85);backdrop-filter:blur(20px)}
+.nav-wordmark{font-family:var(--font-display);font-size:1.4rem;letter-spacing:.15em;color:var(--white)}
+.nav-wordmark b{color:var(--lime)}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--grey);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--lime)}
+.nav-pill{background:var(--lime);color:var(--bg) !important;padding:.38rem 1rem;font-weight:700 !important;clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%)}
+.nav-pill:hover{background:var(--white) !important;color:var(--bg) !important}
+
+/* HERO */
+#hero{min-height:100vh;display:grid;grid-template-columns:1fr 420px;position:relative;overflow:hidden;padding-top:80px}
+.wm{position:absolute;font-family:var(--font-display);font-size:clamp(120px,18vw,220px);color:rgba(200,241,53,0.03);white-space:nowrap;top:50%;left:-2%;transform:translateY(-50%) rotate(-8deg);pointer-events:none;letter-spacing:-.02em;line-height:1;user-select:none}
+.hero-left{padding:5rem 3rem 4rem 5rem;display:flex;flex-direction:column;justify-content:center;position:relative;z-index:2}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.25em;color:var(--lime);text-transform:uppercase;margin-bottom:1.6rem}
+.hero-eyebrow::before{content:'';display:block;width:30px;height:1px;background:var(--lime)}
+.hero-h1{font-family:var(--font-display);font-size:clamp(5rem,10vw,10rem);line-height:.9;letter-spacing:.01em;color:var(--white);margin-bottom:1rem}
+.hero-h1 .accent{-webkit-text-stroke:2px var(--lime);color:transparent;display:block}
+.hero-rule{width:100%;height:1px;background:linear-gradient(90deg,var(--lime),transparent);margin:2rem 0}
+.hero-desc{font-size:1rem;line-height:1.85;color:var(--grey);max-width:480px;margin-bottom:2.5rem}
+.hero-desc strong{color:var(--white);font-weight:700}
+.hero-actions{display:flex;gap:1rem;align-items:center;flex-wrap:wrap}
+.btn-a{background:var(--lime);color:var(--bg);font-family:var(--font-mono);font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;padding:.9rem 2.2rem;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%);transition:all .25s;display:inline-block}
+.btn-a:hover{background:var(--white);transform:translateY(-2px)}
+.btn-b{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;color:var(--grey);text-decoration:none;border-bottom:1px solid var(--grey);padding-bottom:2px;transition:color .2s,border-color .2s}
+.btn-b:hover{color:var(--lime);border-color:var(--lime)}
+.hero-right{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;justify-content:center;padding:4rem 2.5rem;position:relative;overflow:hidden}
+.hero-right::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;background:radial-gradient(circle,rgba(200,241,53,.12),transparent 70%);border-radius:50%}
+.stat-block{display:flex;flex-direction:column;gap:0;border:1px solid var(--border)}
+.stat-row{padding:1.5rem 1.8rem;border-bottom:1px solid var(--border);display:flex;align-items:baseline;gap:1rem;transition:background .2s}
+.stat-row:last-child{border-bottom:none}
+.stat-row:hover{background:rgba(200,241,53,.04)}
+.stat-n{font-family:var(--font-display);font-size:3.5rem;color:var(--lime);line-height:1;flex-shrink:0}
+.stat-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.15em;color:var(--grey);text-transform:uppercase;display:block;margin-bottom:.2rem}
+.stat-detail{font-size:.82rem;color:var(--white);line-height:1.4}
+
+/* MARQUEE */
+.marquee-wrap{background:var(--lime);padding:.65rem 0;overflow:hidden;white-space:nowrap}
+.marquee-inner{display:inline-block;animation:marquee 22s linear infinite}
+.marquee-inner span{font-family:var(--font-display);font-size:1rem;letter-spacing:.2em;color:var(--bg);padding:0 2rem}
+.marquee-sep{color:rgba(7,8,15,.3)}
+@keyframes marquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* SECTION SHARED */
+.sec{padding:6rem 0}
+.wrap{max-width:1160px;margin:0 auto;padding:0 3rem}
+.sec-label{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.25em;color:var(--lime);text-transform:uppercase;display:flex;align-items:center;gap:.7rem;margin-bottom:1rem}
+.sec-label::after{content:'';flex:1;height:1px;background:var(--border);max-width:80px}
+.sec-h{font-family:var(--font-display);font-size:clamp(3.5rem,6vw,6rem);line-height:.95;letter-spacing:.02em;margin-bottom:3rem}
+.sec-h .dim{color:var(--grey)}
+
+/* SERVICES */
+#services{background:var(--surface)}
+.svc-list{display:flex;flex-direction:column;gap:0;border:1px solid var(--border)}
+.svc-item{display:grid;grid-template-columns:80px 1fr 1fr;border-bottom:1px solid var(--border);transition:background .25s;cursor:default}
+.svc-item:last-child{border-bottom:none}
+.svc-item:hover{background:rgba(200,241,53,.05)}
+.svc-item:hover .svc-num,.svc-item:hover .svc-name{color:var(--lime)}
+.svc-num{font-family:var(--font-display);font-size:2.5rem;color:rgba(200,241,53,.2);padding:2rem 1.5rem;display:flex;align-items:center;border-right:1px solid var(--border);transition:color .25s}
+.svc-body{padding:2rem;border-right:1px solid var(--border)}
+.svc-name{font-family:var(--font-display);font-size:2rem;letter-spacing:.04em;margin-bottom:.5rem;transition:color .25s}
+.svc-tags{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.svc-tag{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.12em;color:var(--grey);border:1px solid rgba(255,255,255,.08);padding:.2rem .6rem}
+.svc-right{padding:2rem;display:flex;align-items:center}
+.svc-desc{font-size:.88rem;color:var(--grey);line-height:1.75}
+
+/* TURNITIN SECTION */
+#turnitin{background:var(--bg);padding:6rem 0}
+.turnitin-inner{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:stretch}
+.turnitin-banner{
+  background:linear-gradient(135deg,rgba(200,241,53,.08) 0%,rgba(200,241,53,.02) 100%);
+  border:1px solid var(--lime);
+  padding:3rem;
+  position:relative;overflow:hidden;
+}
+.turnitin-banner::before{
+  content:'✓';font-family:var(--font-display);font-size:10rem;
+  color:rgba(200,241,53,.04);position:absolute;right:-1rem;top:-2rem;
+  line-height:1;pointer-events:none;
+}
+.turnitin-badge{
+  display:inline-flex;align-items:center;gap:.5rem;
+  background:var(--lime);color:var(--bg);
+  font-family:var(--font-mono);font-size:.65rem;font-weight:700;
+  letter-spacing:.18em;text-transform:uppercase;
+  padding:.35rem .9rem;margin-bottom:1.5rem;
+  clip-path:polygon(6px 0%,100% 0%,calc(100% - 6px) 100%,0% 100%);
+}
+.turnitin-title{font-family:var(--font-display);font-size:2.8rem;letter-spacing:.03em;line-height:.95;margin-bottom:1.2rem}
+.turnitin-title span{color:var(--lime)}
+.turnitin-desc{font-size:.9rem;color:var(--grey);line-height:1.8;margin-bottom:2rem}
+.turnitin-desc strong{color:var(--white)}
+.tcheck-list{display:flex;flex-direction:column;gap:.7rem}
+.tcheck-item{display:flex;align-items:flex-start;gap:1rem;padding:1rem 1.2rem;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-left:3px solid var(--lime)}
+.tcheck-icon{font-size:1.1rem;flex-shrink:0;margin-top:.1rem}
+.tcheck-text{font-size:.88rem;color:var(--grey);line-height:1.6}
+.tcheck-text strong{color:var(--white);display:block;margin-bottom:.2rem;font-size:.9rem}
+
+/* FULL COURSE SECTION */
+#fullcourse{background:var(--surface);padding:6rem 0}
+.course-grid{display:grid;grid-template-columns:1.1fr 1fr;gap:4rem;align-items:center}
+.course-left{}
+.course-tagline{font-family:var(--font-display);font-size:clamp(3rem,5vw,5rem);line-height:.92;letter-spacing:.02em;margin-bottom:1.5rem}
+.course-tagline span{color:var(--lime)}
+.course-desc{font-size:.95rem;color:var(--grey);line-height:1.85;margin-bottom:2rem}
+.course-desc strong{color:var(--white)}
+.course-perks{display:flex;flex-direction:column;gap:.8rem}
+.course-perk{display:flex;align-items:center;gap:1rem;font-size:.88rem;color:var(--grey)}
+.course-perk::before{content:'✦';color:var(--lime);font-size:.7rem;flex-shrink:0}
+.course-perk strong{color:var(--white)}
+.course-right{}
+.course-card{
+  background:var(--panel);border:1px solid var(--border);
+  padding:2.5rem;position:relative;overflow:hidden;
+}
+.course-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:3px;background:linear-gradient(90deg,var(--lime),transparent);
+}
+.course-card-eyebrow{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.2em;color:var(--lime);text-transform:uppercase;margin-bottom:1.2rem}
+.course-card-title{font-family:var(--font-display);font-size:1.8rem;letter-spacing:.04em;margin-bottom:.8rem}
+.course-card-body{font-size:.88rem;color:var(--grey);line-height:1.75;margin-bottom:1.5rem}
+.course-features{display:flex;flex-direction:column;gap:.6rem;margin-bottom:2rem}
+.cf-item{display:flex;align-items:center;gap:.8rem;font-size:.83rem}
+.cf-dot{width:6px;height:6px;background:var(--lime);border-radius:50%;flex-shrink:0}
+.cf-txt{color:var(--grey)}
+.cf-txt b{color:var(--white)}
+.course-cta{display:inline-block;background:var(--lime);color:var(--bg);font-family:var(--font-mono);font-size:.72rem;font-weight:700;letter-spacing:.15em;text-transform:uppercase;text-decoration:none;padding:.85rem 1.8rem;clip-path:polygon(8px 0%,100% 0%,calc(100% - 8px) 100%,0% 100%);transition:all .25s}
+.course-cta:hover{background:var(--white)}
+
+/* SUBJECTS */
+#subjects{background:var(--bg)}
+.subj-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:1px;background:rgba(255,255,255,.05)}
+.subj-tile{background:var(--bg);padding:1.8rem 1.5rem;display:flex;flex-direction:column;gap:.5rem;transition:all .25s;position:relative;overflow:hidden}
+.subj-tile::before{content:'';position:absolute;bottom:0;left:0;right:0;height:0;background:var(--lime);transition:height .25s}
+.subj-tile:hover::before{height:3px}
+.subj-tile:hover .subj-name{color:var(--lime)}
+.subj-emoji{font-size:1.4rem}
+.subj-name{font-family:var(--font-body);font-weight:700;font-size:.83rem;color:var(--white);transition:color .25s;line-height:1.3}
+
+/* PROCESS */
+#process{background:var(--surface)}
+.steps{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--border)}
+.step-card{background:var(--surface);padding:3.5rem 3rem;position:relative;overflow:hidden;transition:background .3s}
+.step-card:hover{background:var(--panel)}
+.step-bg-num{position:absolute;right:-1rem;top:-2rem;font-family:var(--font-display);font-size:9rem;color:rgba(200,241,53,.04);line-height:1;pointer-events:none;user-select:none}
+.step-tag{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.2em;color:var(--lime);text-transform:uppercase;margin-bottom:1rem;display:block}
+.step-title{font-family:var(--font-display);font-size:2.2rem;letter-spacing:.04em;margin-bottom:1rem;color:var(--white)}
+.step-desc{font-size:.9rem;color:var(--grey);line-height:1.8}
+
+/* REVIEWS */
+#reviews{background:var(--bg)}
+.reviews-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.review-card{border:1px solid var(--border);padding:2.5rem;position:relative;transition:border-color .3s}
+.review-card:hover{border-color:var(--lime)}
+.review-quote{font-size:3rem;font-family:Georgia,serif;color:var(--lime);opacity:.4;line-height:1;margin-bottom:.5rem}
+.review-text{font-size:.93rem;line-height:1.8;color:var(--grey);margin-bottom:1.8rem;font-style:italic}
+.review-footer{display:flex;align-items:center;gap:1rem}
+.review-av{width:40px;height:40px;background:var(--lime);display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.1rem;color:var(--bg);flex-shrink:0;clip-path:polygon(10px 0%,100% 0%,calc(100% - 10px) 100%,0% 100%)}
+.review-name{font-weight:700;font-size:.88rem}
+.review-course{font-family:var(--font-mono);font-size:.62rem;color:var(--grey);letter-spacing:.1em}
+
+/* CONTACT */
+#contact{background:var(--panel);border-top:1px solid var(--border)}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:start}
+.contact-big{font-family:var(--font-display);font-size:clamp(4rem,7vw,7rem);line-height:.9;margin-bottom:2rem}
+.contact-big .lime{color:var(--lime)}
+.contact-note{font-size:.9rem;color:var(--grey);line-height:1.75;margin-bottom:2.5rem}
+.channels{display:flex;flex-direction:column;gap:.8rem}
+.channel{display:flex;align-items:center;gap:1.2rem;text-decoration:none;color:var(--white);border:1px solid var(--border);padding:1.1rem 1.4rem;transition:all .25s;position:relative;overflow:hidden}
+.channel::before{content:'';position:absolute;left:0;top:0;bottom:0;width:0;background:var(--lime);transition:width .25s}
+.channel:hover::before{width:4px}
+.channel:hover{border-color:var(--lime);padding-left:1.8rem}
+.channel:hover .ch-val{color:var(--lime)}
+.ch-icon{font-size:1.1rem;flex-shrink:0;position:relative;z-index:1}
+.ch-lbl{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.15em;color:var(--grey);display:block}
+.ch-val{font-size:.92rem;font-weight:700;position:relative;z-index:1;transition:color .25s}
+
+/* FORM */
+.cform{display:flex;flex-direction:column;gap:.9rem}
+.cform label{font-family:var(--font-mono);font-size:.6rem;letter-spacing:.18em;color:var(--grey);text-transform:uppercase;display:block;margin-bottom:.3rem}
+.cform input,.cform select,.cform textarea{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-bottom:2px solid rgba(200,241,53,.2);padding:.85rem 1rem;color:var(--white);font-family:var(--font-body);font-size:.9rem;outline:none;transition:border-color .2s,background .2s}
+.cform input:focus,.cform select:focus,.cform textarea:focus{border-bottom-color:var(--lime);background:rgba(200,241,53,.03)}
+.cform select option{background:var(--bg);color:var(--white)}
+.cform textarea{resize:vertical;min-height:110px}
+.cform-row{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+
+/* FILE UPLOAD */
+.file-upload-wrap{position:relative}
+.file-drop-zone{
+  width:100%;min-height:90px;
+  background:rgba(255,255,255,.03);
+  border:1px dashed rgba(200,241,53,.3);
+  border-bottom:2px solid rgba(200,241,53,.2);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.4rem;cursor:pointer;padding:1rem;
+  transition:all .25s;position:relative;
+}
+.file-drop-zone:hover,.file-drop-zone.dragover{
+  background:rgba(200,241,53,.05);
+  border-color:var(--lime);
+}
+.file-drop-zone input[type="file"]{
+  position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;
+  border:none;background:none;
+}
+.file-drop-icon{font-size:1.4rem}
+.file-drop-text{font-family:var(--font-mono);font-size:.65rem;letter-spacing:.12em;color:var(--grey);text-align:center}
+.file-drop-text b{color:var(--lime)}
+.file-drop-hint{font-family:var(--font-mono);font-size:.58rem;color:rgba(138,143,168,.6);letter-spacing:.1em}
+.file-list{margin-top:.5rem;display:flex;flex-direction:column;gap:.3rem}
+.file-item{display:flex;align-items:center;justify-content:space-between;background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.15);padding:.4rem .7rem;font-family:var(--font-mono);font-size:.62rem;color:var(--lime)}
+.file-item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80%}
+.file-remove{background:none;border:none;color:var(--grey);cursor:pointer;font-size:.8rem;padding:0 .2rem;transition:color .2s;flex-shrink:0}
+.file-remove:hover{color:#ff6b6b}
+
+/* SUBMIT BUTTON */
+.btn-submit{width:100%;background:var(--lime);color:var(--bg);font-family:var(--font-display);font-size:1.4rem;letter-spacing:.1em;border:none;padding:1rem 2rem;cursor:pointer;transition:all .25s;clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);margin-top:.3rem}
+.btn-submit:hover:not(:disabled){background:var(--white);transform:scale(1.01)}
+.btn-submit:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+/* FORM STATUS */
+.form-status{padding:.8rem 1rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.1em;text-align:center;display:none}
+.form-status.success{background:rgba(58,122,80,.2);border:1px solid #3a7a50;color:#6ecc94;display:block}
+.form-status.error{background:rgba(180,50,50,.15);border:1px solid #b43232;color:#ff8a8a;display:block}
+.form-status.sending{background:rgba(200,241,53,.08);border:1px solid var(--border);color:var(--lime);display:block}
+
+/* EMAILJS SETUP NOTICE (shown only before setup) */
+.setup-notice{background:rgba(200,241,53,.06);border:1px solid rgba(200,241,53,.3);padding:1rem 1.2rem;margin-bottom:1rem;font-family:var(--font-mono);font-size:.62rem;color:var(--lime);line-height:1.6;letter-spacing:.06em;display:none}
+
+/* FOOTER */
+footer{background:var(--bg);border-top:1px solid var(--border);padding:2rem 3rem;display:flex;align-items:center;justify-content:space-between}
+.ft-logo{font-family:var(--font-display);font-size:1.2rem;letter-spacing:.1em}
+.ft-logo b{color:var(--lime)}
+.ft-copy{font-family:var(--font-mono);font-size:.6rem;color:var(--grey);letter-spacing:.12em}
+.ft-links{display:flex;gap:1.5rem}
+.ft-links a{font-family:var(--font-mono);font-size:.62rem;color:var(--grey);text-decoration:none;letter-spacing:.1em;transition:color .2s}
+.ft-links a:hover{color:var(--lime)}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+.fu{animation:fadeUp .8s ease both}
+.d1{animation-delay:.1s}.d2{animation-delay:.25s}.d3{animation-delay:.4s}.d4{animation-delay:.55s}.d5{animation-delay:.7s}
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:1rem 1.5rem}
+  .nav-links{display:none}
+  #hero{grid-template-columns:1fr}
+  .hero-left{padding:5rem 1.5rem 3rem}
+  .hero-right{padding:2.5rem 1.5rem;border-left:none;border-top:1px solid var(--border)}
+  .wrap{padding:0 1.5rem}
+  .svc-item{grid-template-columns:1fr}
+  .svc-num{border-right:none;border-bottom:1px solid var(--border);padding:1rem 1.5rem;font-size:1.8rem}
+  .svc-body{border-right:none;border-bottom:1px solid var(--border)}
+  .turnitin-inner{grid-template-columns:1fr}
+  .course-grid{grid-template-columns:1fr;gap:2.5rem}
+  .subj-grid{grid-template-columns:repeat(2,1fr)}
+  .steps{grid-template-columns:1fr}
+  .reviews-grid{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr;gap:3rem}
+  .cform-row{grid-template-columns:1fr}
+  footer{flex-direction:column;gap:1rem;text-align:center}
+  html{cursor:auto}
+  #cursor,#cursor-ring{display:none}
+}
+</style>
+</head>
+<body>
+
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav>
+  <div class="nav-wordmark">PROF.<b>NJOGU</b></div>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#turnitin">Turnitin</a></li>
+    <li><a href="#fullcourse">Full Course</a></li>
+    <li><a href="#subjects">Subjects</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#contact" class="nav-pill">Get Help</a></li>
+  </ul>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section id="hero">
+  <div class="wm">ACADEMIC&nbsp;HELP</div>
+  <div class="hero-left">
+    <div class="hero-eyebrow fu d1">Available Now · All Courses · All Levels</div>
+    <h1 class="hero-h1 fu d2">PROF.<br><span class="accent">NJOGU</span></h1>
+    <div class="hero-rule fu d3"></div>
+    <p class="hero-desc fu d3">The academic expert students turn to when <strong>deadlines hit hard</strong>. Assignments, exams, essays, thesis, simulations — every subject, every level. <strong>Confidential. Fast. Excellent.</strong></p>
+    <div class="hero-actions fu d4">
+      <a href="#contact" class="btn-a">Start Now →</a>
+      <a href="#services" class="btn-b">See what I do</a>
+    </div>
+  </div>
+  <div class="hero-right fu d5">
+    <div class="stat-block">
+      <div class="stat-row">
+        <div class="stat-n">500<span style="font-size:1.8rem;color:var(--lime)">+</span></div>
+        <div><span class="stat-label">Students Helped</span><div class="stat-detail">Across universities & colleges worldwide</div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-n">98<span style="font-size:1.8rem;color:var(--lime)">%</span></div>
+        <div><span class="stat-label">Satisfaction Rate</span><div class="stat-detail">Students return and refer others</div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-n">24<span style="font-size:1.4rem;color:var(--lime)">hr</span></div>
+        <div><span class="stat-label">Avg. Turnaround</span><div class="stat-detail">Rush delivery available</div></div>
+      </div>
+      <div class="stat-row">
+        <div class="stat-n">A+</div>
+        <div><span class="stat-label">Typical Grade</span><div class="stat-detail">Precision-crafted for top marks</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ MARQUEE ═══ -->
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    <span>ASSIGNMENTS <b class="marquee-sep">✦</b></span><span>EXAMS <b class="marquee-sep">✦</b></span><span>THESIS <b class="marquee-sep">✦</b></span><span>ESSAYS <b class="marquee-sep">✦</b></span><span>TURNITIN CHECKS <b class="marquee-sep">✦</b></span><span>FULL COURSES <b class="marquee-sep">✦</b></span><span>SIMULATIONS <b class="marquee-sep">✦</b></span><span>DATA ANALYSIS <b class="marquee-sep">✦</b></span><span>ASSIGNMENTS <b class="marquee-sep">✦</b></span><span>EXAMS <b class="marquee-sep">✦</b></span><span>THESIS <b class="marquee-sep">✦</b></span><span>ESSAYS <b class="marquee-sep">✦</b></span><span>TURNITIN CHECKS <b class="marquee-sep">✦</b></span><span>FULL COURSES <b class="marquee-sep">✦</b></span><span>SIMULATIONS <b class="marquee-sep">✦</b></span><span>DATA ANALYSIS <b class="marquee-sep">✦</b></span>
+  </div>
+</div>
+
+<!-- ═══ SERVICES ═══ -->
+<section id="services" class="sec">
+  <div class="wrap">
+    <div class="sec-label reveal">What I Do</div>
+    <h2 class="sec-h reveal"><span class="dim">MY</span><br>SERVICES</h2>
+    <div class="svc-list reveal">
+      <div class="svc-item">
+        <div class="svc-num">01</div>
+        <div class="svc-body"><div class="svc-name">ASSIGNMENTS</div><div class="svc-tags"><span class="svc-tag">Any subject</span><span class="svc-tag">Any format</span><span class="svc-tag">On time</span></div></div>
+        <div class="svc-right"><p class="svc-desc">Complete, well-researched assignment solutions. Properly formatted and tailored to your course guidelines — ready to submit.</p></div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-num">02</div>
+        <div class="svc-body"><div class="svc-name">EXAMS & TESTS</div><div class="svc-tags"><span class="svc-tag">Online exams</span><span class="svc-tag">Timed tests</span><span class="svc-tag">Fast response</span></div></div>
+        <div class="svc-right"><p class="svc-desc">Expert, accurate answers during live exams and timed assessments. Strategic, efficient, and optimised for maximum marks.</p></div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-num">03</div>
+        <div class="svc-body"><div class="svc-name">ESSAYS & PAPERS</div><div class="svc-tags"><span class="svc-tag">APA · MLA · Harvard</span><span class="svc-tag">Original</span></div></div>
+        <div class="svc-right"><p class="svc-desc">Compelling arguments. Flawless structure. Original research with proper citations in any referencing style your institution requires.</p></div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-num">04</div>
+        <div class="svc-body"><div class="svc-name">THESIS & DISSERTATIONS</div><div class="svc-tags"><span class="svc-tag">Proposal</span><span class="svc-tag">Full thesis</span><span class="svc-tag">Defence prep</span></div></div>
+        <div class="svc-right"><p class="svc-desc">End-to-end thesis support. Research design, literature review, methodology, data analysis, and final write-up — handled with precision.</p></div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-num">05</div>
+        <div class="svc-body"><div class="svc-name">SIMULATIONS & PROJECTS</div><div class="svc-tags"><span class="svc-tag">Lab reports</span><span class="svc-tag">Coding</span><span class="svc-tag">Case studies</span></div></div>
+        <div class="svc-right"><p class="svc-desc">Technical project work including engineering simulations, programming assignments, lab reports, and complex case study analyses.</p></div>
+      </div>
+      <div class="svc-item">
+        <div class="svc-num">06</div>
+        <div class="svc-body"><div class="svc-name">DATA ANALYSIS</div><div class="svc-tags"><span class="svc-tag">SPSS</span><span class="svc-tag">R / Python</span><span class="svc-tag">Excel</span></div></div>
+        <div class="svc-right"><p class="svc-desc">Statistical modelling, data interpretation, and visual reporting. Turning raw numbers into sharp, academically credible insights.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TURNITIN SECTION ═══ -->
+<section id="turnitin">
+  <div class="wrap">
+    <div class="sec-label reveal">Plagiarism & AI Detection</div>
+    <h2 class="sec-h reveal">TURNITIN<br><span class="dim">CHECKS</span></h2>
+    <div class="turnitin-inner reveal">
+      <div class="turnitin-banner">
+        <div class="turnitin-badge">✦ Included Free</div>
+        <div class="turnitin-title">Zero Plagiarism.<br><span>Zero AI Detection.</span></div>
+        <p class="turnitin-desc">Every assignment I complete for you comes with a <strong>free Turnitin plagiarism and AI detection report</strong>. You submit with complete confidence — clean, original, and flagged by nothing.</p>
+        <p class="turnitin-desc">Need a check on a document I <em>didn't</em> write? No problem — I offer standalone Turnitin checks for just <strong>$10 per document</strong>.</p>
+      </div>
+      <div class="tcheck-list">
+        <div class="tcheck-item">
+          <span class="tcheck-icon">🆓</span>
+          <div class="tcheck-text">
+            <strong>Free — With My Assignments</strong>
+            Every piece of work I complete for you is automatically checked and delivered with a clean Turnitin report showing 0% plagiarism and no AI flags.
+          </div>
+        </div>
+        <div class="tcheck-item">
+          <span class="tcheck-icon">💵</span>
+          <div class="tcheck-text">
+            <strong>$10 — Standalone Check</strong>
+            Have your own document that needs checking? Send it over and I'll run a full Turnitin plagiarism + AI detection report for a flat fee of $10.
+          </div>
+        </div>
+        <div class="tcheck-item">
+          <span class="tcheck-icon">🤖</span>
+          <div class="tcheck-text">
+            <strong>AI Detection Included</strong>
+            Both free and paid checks cover AI-generated content detection — so you're protected against GPT/AI flags on top of plagiarism screening.
+          </div>
+        </div>
+        <div class="tcheck-item">
+          <span class="tcheck-icon">⚡</span>
+          <div class="tcheck-text">
+            <strong>Fast Turnaround</strong>
+            Reports are delivered promptly — usually within a few hours of submission. No waiting around when your deadline is close.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FULL COURSE MANAGEMENT ═══ -->
+<section id="fullcourse">
+  <div class="wrap">
+    <div class="sec-label reveal">Semester-Long Help</div>
+    <div class="course-grid reveal">
+      <div class="course-left">
+        <div class="course-tagline">I RUN YOUR<br><span>FULL COURSE.</span><br>YOU LIVE YOUR LIFE.</div>
+        <p class="course-desc">Balancing multiple courses, a job, family, or other commitments? Let me handle an <strong>entire course for the whole semester</strong> — from week one to final exam — at a friendly, negotiated cost.</p>
+        <p class="course-desc">You stay enrolled, you attend when you can, and I make sure the academic side is handled. <strong>Assignments, tests, discussions, projects, finals</strong> — all of it, all semester.</p>
+        <div class="course-perks">
+          <div class="course-perk"><strong>All assignments & coursework</strong> handled throughout the semester</div>
+          <div class="course-perk"><strong>Weekly discussions & participation</strong> posts covered</div>
+          <div class="course-perk"><strong>Midterms & finals</strong> taken care of expertly</div>
+          <div class="course-perk"><strong>Flexible pricing</strong> — negotiated based on course load</div>
+          <div class="course-perk"><strong>Any subject, any university</strong> — online or hybrid courses</div>
+          <div class="course-perk"><strong>100% confidential</strong> — your identity stays protected</div>
+        </div>
+      </div>
+      <div class="course-right">
+        <div class="course-card">
+          <div class="course-card-eyebrow">✦ Full Semester Package</div>
+          <div class="course-card-title">TAKE BACK YOUR TIME</div>
+          <p class="course-card-body">Free yourself from the pressure of constant academic demands. Focus on what matters most to you while I secure your grade.</p>
+          <div class="course-features">
+            <div class="cf-item"><div class="cf-dot"></div><div class="cf-txt"><b>Week-by-week</b> assignment completion</div></div>
+            <div class="cf-item"><div class="cf-dot"></div><div class="cf-txt"><b>Exam & quiz</b> support throughout</div></div>
+            <div class="cf-item"><div class="cf-dot"></div><div class="cf-txt"><b>Discussion boards</b> & class participation</div></div>
+            <div class="cf-item"><div class="cf-dot"></div><div class="cf-txt"><b>Free Turnitin</b> checks on all work</div></div>
+            <div class="cf-item"><div class="cf-dot"></div><div class="cf-txt"><b>Friendly cost</b> — negotiated per course</div></div>
+          </div>
+          <a href="#contact" class="course-cta">Enquire About Full Course →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ SUBJECTS ═══ -->
+<section id="subjects" class="sec">
+  <div class="wrap">
+    <div class="sec-label reveal">Coverage</div>
+    <h2 class="sec-h reveal">ALL<br><span class="dim">COURSES</span></h2>
+    <div class="subj-grid reveal">
+      <div class="subj-tile"><span class="subj-emoji">📐</span><div class="subj-name">Mathematics</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📊</span><div class="subj-name">Statistics</div></div>
+      <div class="subj-tile"><span class="subj-emoji">💰</span><div class="subj-name">Finance & Accounting</div></div>
+      <div class="subj-tile"><span class="subj-emoji">⚖️</span><div class="subj-name">Law & Legal Studies</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🩺</span><div class="subj-name">Nursing & Medicine</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🧬</span><div class="subj-name">Biology & Sciences</div></div>
+      <div class="subj-tile"><span class="subj-emoji">💻</span><div class="subj-name">Computer Science</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🔧</span><div class="subj-name">Engineering</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📣</span><div class="subj-name">Marketing & Business</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🧠</span><div class="subj-name">Psychology</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🌍</span><div class="subj-name">Social Sciences</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📚</span><div class="subj-name">Literature & English</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🏛️</span><div class="subj-name">History & Philosophy</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🌐</span><div class="subj-name">International Relations</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🏥</span><div class="subj-name">Public Health</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📦</span><div class="subj-name">Supply Chain</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🏗️</span><div class="subj-name">Architecture</div></div>
+      <div class="subj-tile"><span class="subj-emoji">🧪</span><div class="subj-name">Chemistry & Physics</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📡</span><div class="subj-name">IT & Networking</div></div>
+      <div class="subj-tile"><span class="subj-emoji">📋</span><div class="subj-name">Project Management</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PROCESS ═══ -->
+<section id="process" class="sec">
+  <div class="wrap">
+    <div class="sec-label reveal">How It Works</div>
+    <h2 class="sec-h reveal"><span class="dim">4</span> STEPS<br>TO SUCCESS</h2>
+    <div class="steps reveal">
+      <div class="step-card"><div class="step-bg-num">01</div><span class="step-tag">Step 01</span><div class="step-title">SHARE YOUR TASK</div><p class="step-desc">Send your assignment brief, instructions, rubric, and deadline via WhatsApp or the form below. Upload your files directly — the more detail, the better.</p></div>
+      <div class="step-card"><div class="step-bg-num">02</div><span class="step-tag">Step 02</span><div class="step-title">GET A QUOTE</div><p class="step-desc">I'll review your task and send a fair, transparent price quote within minutes. No hidden fees, no surprises whatsoever.</p></div>
+      <div class="step-card"><div class="step-bg-num">03</div><span class="step-tag">Step 03</span><div class="step-title">WORK BEGINS</div><p class="step-desc">Once confirmed, I start immediately. You receive progress updates and unlimited revisions until you're fully satisfied.</p></div>
+      <div class="step-card"><div class="step-bg-num">04</div><span class="step-tag">Step 04</span><div class="step-title">RECEIVE & SUBMIT</div><p class="step-desc">Your completed, proofread work — with free Turnitin report — lands before your deadline. Submit with confidence.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ REVIEWS ═══ -->
+<section id="reviews" class="sec">
+  <div class="wrap">
+    <div class="sec-label reveal">Testimonials</div>
+    <h2 class="sec-h reveal">STUDENT<br><span class="dim">VOICES</span></h2>
+    <div class="reviews-grid reveal">
+      <div class="review-card"><div class="review-quote">❝</div><p class="review-text">Prof. Njogu rescued my entire semester. My Finance thesis was a disaster and he rebuilt it in 48 hours. My supervisor was genuinely impressed. The Turnitin report came back 0% — perfect.</p><div class="review-footer"><div class="review-av">AM</div><div><div class="review-name">Amara M.</div><div class="review-course">MSc Finance · University of Nairobi</div></div></div></div>
+      <div class="review-card"><div class="review-quote">❝</div><p class="review-text">Three assignments, two days, midnight. I panicked and messaged Prof. Njogu. By 6am, all three were done perfectly. Fast, original, and exactly on spec. Unreal.</p><div class="review-footer"><div class="review-av">DK</div><div><div class="review-name">David K.</div><div class="review-course">BSc Computer Science · Kenyatta University</div></div></div></div>
+      <div class="review-card"><div class="review-quote">❝</div><p class="review-text">He ran my entire Business Management course for a full semester. I just showed up for in-person days and he handled everything else. Ended up with a B+ — couldn't be happier.</p><div class="review-footer"><div class="review-av">FO</div><div><div class="review-name">Fatima O.</div><div class="review-course">BSc Business · Strathmore University</div></div></div></div>
+      <div class="review-card"><div class="review-quote">❝</div><p class="review-text">I've used Prof. Njogu for four semesters straight. My GPA went from 2.8 to 3.7. Consistent, discreet, and genuinely invested in your success every single time.</p><div class="review-footer"><div class="review-av">JM</div><div><div class="review-name">James M.</div><div class="review-course">BBA Management · USIU-Africa</div></div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CONTACT ═══ -->
+<section id="contact" class="sec">
+  <div class="wrap">
+    <div class="contact-grid">
+      <div class="reveal">
+        <h2 class="contact-big">LET'S<br>GET<br><span class="lime">STARTED.</span></h2>
+        <p class="contact-note">Reach out now — all inquiries are completely confidential. Share your task and I'll respond within the hour.</p>
+        <div class="channels">
+          <a href="https://wa.me/254785558088" class="channel" target="_blank">
+            <span class="ch-icon">💬</span>
+            <div><span class="ch-lbl">WhatsApp — Fastest</span><div class="ch-val">+254 785 558 088</div></div>
+          </a>
+          <a href="mailto:mianonjogu04@gmail.com" class="channel">
+            <span class="ch-icon">✉️</span>
+            <div><span class="ch-lbl">Email</span><div class="ch-val">mianonjogu04@gmail.com</div></div>
+          </a>
+          <a class="channel" style="cursor:default">
+            <span class="ch-icon">🕐</span>
+            <div><span class="ch-lbl">Hours</span><div class="ch-val">Mon–Sun · 6 AM – 11 PM EAT</div></div>
+          </a>
+        </div>
+      </div>
+
+      <!-- ═══ CONTACT FORM ═══ -->
+      <div class="reveal">
+        <!-- EMAILJS SETUP NOTICE — remove this block once you've set up EmailJS -->
+        <div class="setup-notice" id="setupNotice">
+          ⚠ EMAILJS SETUP REQUIRED — See the instructions at the bottom of this page's source code to activate email sending.
+        </div>
+
+        <div class="cform" id="contactForm">
+          <div class="cform-row">
+            <div><label>Your Name *</label><input type="text" id="f-name" placeholder="Your full name" required/></div>
+            <div><label>Your Email *</label><input type="email" id="f-email" placeholder="your@email.com" required/></div>
+          </div>
+          <div>
+            <label>Your Phone / WhatsApp</label>
+            <input type="tel" id="f-phone" placeholder="+254 7xx xxx xxx"/>
+          </div>
+          <div>
+            <label>Service Needed *</label>
+            <select id="f-service" required>
+              <option value="">Choose a service...</option>
+              <option>Assignment</option>
+              <option>Exam / Test</option>
+              <option>Essay / Research Paper</option>
+              <option>Thesis / Dissertation</option>
+              <option>Simulation / Project</option>
+              <option>Data Analysis</option>
+              <option>Turnitin Check Only ($10)</option>
+              <option>Full Course Management (Semester)</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="cform-row">
+            <div><label>Subject / Course</label><input type="text" id="f-subject" placeholder="e.g. Organic Chemistry"/></div>
+            <div><label>Deadline</label><input type="date" id="f-deadline"/></div>
+          </div>
+          <div>
+            <label>Task Details *</label>
+            <textarea id="f-details" placeholder="Describe your task in detail — include any special instructions, word count, format, or other requirements..." required></textarea>
+          </div>
+
+          <!-- FILE UPLOAD -->
+          <div>
+            <label>Upload Files (Optional)</label>
+            <div class="file-drop-zone" id="dropZone">
+              <input type="file" id="f-files" multiple accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.txt,.zip,.rar,.jpg,.jpeg,.png"/>
+              <span class="file-drop-icon">📎</span>
+              <span class="file-drop-text"><b>Click to browse</b> or drag & drop files here</span>
+              <span class="file-drop-hint">PDF, DOC, DOCX, PPT, XLS, TXT, ZIP, Images — Max 10MB each</span>
+            </div>
+            <div class="file-list" id="fileList"></div>
+          </div>
+
+          <div class="form-status" id="formStatus"></div>
+          <button class="btn-submit" id="submitBtn" onclick="handleSubmit(event)">SEND REQUEST →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer>
+  <div class="ft-logo">PROF.<b>NJOGU</b></div>
+  <div class="ft-copy">© 2026 · ACADEMIC HELP SERVICES · ALL RIGHTS RESERVED</div>
+  <div class="ft-links">
+    <a href="#services">Services</a>
+    <a href="#turnitin">Turnitin</a>
+    <a href="#fullcourse">Full Course</a>
+    <a href="#contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+/* ══════════════════════════════════════════════════
+   EMAILJS CONFIGURATION
+   ══════════════════════════════════════════════════
+   To activate email sending, follow these steps:
+
+   1. Go to https://www.emailjs.com and create a FREE account.
+   2. Click "Add New Service" → choose Gmail → connect mianonjogu04@gmail.com
+      Copy your SERVICE ID (looks like "service_xxxxxxx")
+   3. Click "Email Templates" → "Create New Template"
+      In the template body, use these variables:
+        From: {{from_name}} ({{from_email}})
+        Phone: {{phone}}
+        Service: {{service}}
+        Subject: {{subject}}
+        Deadline: {{deadline}}
+        Details: {{details}}
+        Files: {{files_info}}
+      Set "To Email" to: mianonjogu04@gmail.com
+      Copy your TEMPLATE ID (looks like "template_xxxxxxx")
+   4. Click "Account" → copy your PUBLIC KEY
+   5. Replace the three placeholder values below with your real ones.
+   ══════════════════════════════════════════════════ */
+
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY';     // ← replace
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID';     // ← replace
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID';    // ← replace
+
+const IS_CONFIGURED = !EMAILJS_PUBLIC_KEY.startsWith('YOUR');
+
+// Show setup notice if not yet configured
+if (!IS_CONFIGURED) {
+  document.getElementById('setupNotice').style.display = 'block';
+}
+
+// Init EmailJS
+emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+/* ── CUSTOM CURSOR ── */
+const cur = document.getElementById('cursor');
+const ring = document.getElementById('cursor-ring');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{
+  mx=e.clientX; my=e.clientY;
+  cur.style.left=mx+'px'; cur.style.top=my+'px';
+});
+(function tick(){
+  rx+=(mx-rx)*.12; ry+=(my-ry)*.12;
+  ring.style.left=rx+'px'; ring.style.top=ry+'px';
+  requestAnimationFrame(tick);
+})();
+document.querySelectorAll('a,button,.svc-item,.subj-tile,.step-card,.review-card').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{cur.style.width='6px';cur.style.height='6px';ring.style.width='52px';ring.style.height='52px'});
+  el.addEventListener('mouseleave',()=>{cur.style.width='12px';cur.style.height='12px';ring.style.width='36px';ring.style.height='36px'});
+});
+
+/* ── SCROLL REVEAL ── */
+const obs = new IntersectionObserver(entries=>{
+  entries.forEach(e=>{ if(e.isIntersecting){e.target.classList.add('in');obs.unobserve(e.target)} });
+},{threshold:.08});
+document.querySelectorAll('.reveal').forEach(el=>obs.observe(el));
+
+/* ── SMOOTH SCROLL ── */
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',e=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth',block:'start'})}
+  });
+});
+
+/* ── FILE UPLOAD ── */
+let selectedFiles = [];
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('f-files');
+const fileList  = document.getElementById('fileList');
+
+fileInput.addEventListener('change', ()=>{ addFiles(fileInput.files); fileInput.value=''; });
+
+dropZone.addEventListener('dragover', e=>{ e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', ()=>dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e=>{
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+});
+
+function addFiles(incoming){
+  Array.from(incoming).forEach(f=>{
+    if(f.size > 10*1024*1024){ alert(`"${f.name}" is over 10MB and was skipped.`); return; }
+    if(!selectedFiles.find(x=>x.name===f.name && x.size===f.size)) selectedFiles.push(f);
+  });
+  renderFileList();
+}
+
+function removeFile(idx){ selectedFiles.splice(idx,1); renderFileList(); }
+
+function renderFileList(){
+  fileList.innerHTML = selectedFiles.map((f,i)=>`
+    <div class="file-item">
+      <span class="file-item-name">📄 ${f.name} (${(f.size/1024).toFixed(0)} KB)</span>
+      <button class="file-remove" onclick="removeFile(${i})" type="button">✕</button>
+    </div>`).join('');
+}
+
+/* ── FILE → BASE64 ── */
+function fileToBase64(file){
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=()=>res(r.result.split(',')[1]);
+    r.onerror=rej;
+    r.readAsDataURL(file);
+  });
+}
+
+/* ── FORM SUBMIT ── */
+async function handleSubmit(e){
+  e.preventDefault();
+  const btn    = document.getElementById('submitBtn');
+  const status = document.getElementById('formStatus');
+
+  // Validate required fields
+  const name    = document.getElementById('f-name').value.trim();
+  const email   = document.getElementById('f-email').value.trim();
+  const service = document.getElementById('f-service').value;
+  const details = document.getElementById('f-details').value.trim();
+
+  if(!name||!email||!service||!details){
+    showStatus('error','⚠ Please fill in all required fields (Name, Email, Service, Details).');
+    return;
+  }
+
+  const phone    = document.getElementById('f-phone').value.trim();
+  const subject  = document.getElementById('f-subject').value.trim();
+  const deadline = document.getElementById('f-deadline').value;
+
+  // If not configured, show WhatsApp fallback
+  if(!IS_CONFIGURED){
+    const msg = encodeURIComponent(
+      `Hi Prof. Njogu!\n\nName: ${name}\nEmail: ${email}\nPhone: ${phone||'N/A'}\nService: ${service}\nSubject: ${subject||'N/A'}\nDeadline: ${deadline||'N/A'}\n\nDetails:\n${details}`
+    );
+    window.open(`https://wa.me/254785558088?text=${msg}`,'_blank');
+    showStatus('success','✓ Redirecting you to WhatsApp. (Set up EmailJS to enable direct email sending.)');
+    return;
+  }
+
+  // Disable button, show sending state
+  btn.disabled = true;
+  btn.textContent = 'SENDING...';
+  showStatus('sending','⏳ Sending your request...');
+
+  // Build file info string & encode files
+  let filesInfo = 'No files attached.';
+  const attachments = [];
+
+  if(selectedFiles.length > 0){
+    filesInfo = selectedFiles.map(f=>`• ${f.name} (${(f.size/1024).toFixed(0)} KB)`).join('\n');
+    // Encode up to 3 files as base64 for EmailJS (free tier limit)
+    const toEncode = selectedFiles.slice(0, 3);
+    for(const f of toEncode){
+      try{
+        const b64 = await fileToBase64(f);
+        attachments.push({ name: f.name, data: b64, contentType: f.type });
+      } catch(_){}
+    }
+    if(selectedFiles.length > 3){
+      filesInfo += `\n\n(Note: Only first 3 files attached inline. ${selectedFiles.length-3} more file(s) not attached — client will send separately.)`;
+    }
+  }
+
+  // Prepare template params
+  const params = {
+    from_name  : name,
+    from_email : email,
+    phone      : phone || 'Not provided',
+    service    : service,
+    subject    : subject || 'Not specified',
+    deadline   : deadline || 'Not specified',
+    details    : details,
+    files_info : filesInfo,
+    to_email   : 'mianonjogu04@gmail.com',
+    reply_to   : email,
+  };
+
+  // Attach files if any (EmailJS supports attachments via dynamic template variables)
+  if(attachments.length > 0){
+    params.attachment_1_name = attachments[0]?.name || '';
+    params.attachment_1_data = attachments[0]?.data || '';
+    if(attachments[1]){ params.attachment_2_name = attachments[1].name; params.attachment_2_data = attachments[1].data; }
+    if(attachments[2]){ params.attachment_3_name = attachments[2].name; params.attachment_3_data = attachments[2].data; }
+  }
+
+  try {
+    await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, params);
+    showStatus('success','✓ Request sent! Prof. Njogu will reply within the hour. Check your email.');
+    // Reset form
+    ['f-name','f-email','f-phone','f-subject','f-details'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('f-service').value='';
+    document.getElementById('f-deadline').value='';
+    selectedFiles=[]; renderFileList();
+    btn.textContent='SEND REQUEST →';
+    btn.disabled=false;
+  } catch(err){
+    console.error('EmailJS error:',err);
+    showStatus('error','✗ Send failed. Please try WhatsApp or email directly: mianonjogu04@gmail.com');
+    btn.textContent='SEND REQUEST →';
+    btn.disabled=false;
+  }
+}
+
+function showStatus(type, msg){
+  const s = document.getElementById('formStatus');
+  s.className = `form-status ${type}`;
+  s.textContent = msg;
+  s.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+</script>
+
+<!--
+════════════════════════════════════════════════════
+ EMAILJS SETUP GUIDE FOR PROF. NJOGU
+════════════════════════════════════════════════════
+ 1. Create a FREE account at https://www.emailjs.com
+ 2. Add a Gmail service → connect mianonjogu04@gmail.com
+    → copy the Service ID
+ 3. Create an Email Template with these variables in the body:
+      From:     {{from_name}} <{{from_email}}>
+      Phone:    {{phone}}
+      Service:  {{service}}
+      Subject:  {{subject}}
+      Deadline: {{deadline}}
+      Details:  {{details}}
+      Files:    {{files_info}}
+    Set "To Email" → mianonjogu04@gmail.com
+    → copy the Template ID
+ 4. Go to Account → copy your Public Key
+ 5. In the <script> above, replace:
+      EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'     ← your real public key
+      EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'     ← your real service ID
+      EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'    ← your real template ID
+ 6. Save and re-upload the file. Done!
+
+ FREE TIER: 200 emails/month — plenty to start.
+ File attachments work via EmailJS dynamic template attachments.
+════════════════════════════════════════════════════
+-->
+</body>
+</html>
